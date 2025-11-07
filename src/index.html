@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" href="/favicon.png" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/styles/styles.css" /> <link rel="manifest" href="/manifest.webmanifest">
+    <title>Dicoding Story</title>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+    <script type="module" src="/scripts/index.js"></script>
+</head>
+  <body>
+    <header>
+      <a class="skip-link" href="#app-main" aria-label="Skip to main content">Skip to content</a>
+
+      <div class="main-header container">
+        <a class="brand-name" href="#/">Dicoding Story</a>
+
+        <nav id="side-navigation" class="navigation-drawer" aria-label="Primary">
+          <ul id="primary-nav" class="nav-list">
+            <li><a href="#/">Beranda</a></li>
+            <li><a href="#/login">Login</a></li>
+            <li><a href="#/register">Register</a></li>
+            <li><a href="#/saved">Cerita Tersimpan</a></li>
+          </ul>
+
+          <div class="push-buttons">
+            <button id="push-subscribe" class="btn">Subscribe Push</button>
+            <button id="push-unsubscribe" class="btn">Unsubscribe Push</button>
+          </div>
+
+          <div id="auth-actions" style="margin-top:12px;">
+            <button id="btn-logout" class="btn" style="display:none;">Logout</button>
+          </div>
+        </nav>
+
+        <button id="menu-toggle" class="drawer-button" aria-expanded="false" aria-controls="side-navigation">☰</button>
+      </div>
+    </header>
+
+    <main id="app-main" class="main-content" tabindex="-1"></main>
+
+    <footer class="footer" role="contentinfo">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Dicoding Story</h3>
+            <p>Platform berbagi cerita dari komunitas developer Indonesia</p>
+          </div>
+          <div class="footer-section">
+            <h4>Navigasi</h4>
+            <ul>
+              <li><a href="#/">Beranda</a></li>
+              <li><a href="#/login">Login</a></li>
+              <li><a href="#/register">Register</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Fitur</h4>
+            <ul>
+              <li>Bagikan Cerita</li>
+              <li>Lokasi Interaktif</li>
+              <li>Notifikasi</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2024 Dicoding Story — dibuat untuk komunitas developer.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        const AUTH_KEY = 'app_auth_token';
+
+        const toggleBtn = document.getElementById('menu-toggle');
+        const navDrawer = document.getElementById('side-navigation');
+        const primaryNav = document.getElementById('primary-nav');
+        const logoutButton = document.getElementById('btn-logout');
+
+        toggleBtn?.addEventListener('click', () => {
+          const isOpen = navDrawer.classList.toggle('open');
+          toggleBtn.setAttribute('aria-expanded', String(!!isOpen));
+        });
+        document.body.addEventListener('click', (ev) => {
+          const t = ev.target;
+          if (!navDrawer.contains(t) && !toggleBtn.contains(t)) {
+            navDrawer.classList.remove('open');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+          }
+
+          primaryNav.querySelectorAll('a').forEach((a) => {
+            if (a.contains(t)) {
+              navDrawer.classList.remove('open');
+              toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+          });
+        });
+
+        function refreshAuthUI() {
+          const token = localStorage.getItem(AUTH_KEY);
+          const loginLink = primaryNav.querySelector('a[href="#/login"]');
+          const registerLink = primaryNav.querySelector('a[href="#/register"]');
+
+          if (token) {
+            if (loginLink) loginLink.style.display = 'none';
+            if (registerLink) registerLink.style.display = 'none';
+            logoutButton.style.display = 'inline-block';
+          } else {
+            if (loginLink) loginLink.style.display = '';
+            if (registerLink) registerLink.style.display = '';
+            logoutButton.style.display = 'none';
+          }
+        }
+
+        refreshAuthUI();
+        window.addEventListener('hashchange', refreshAuthUI);
+
+        logoutButton?.addEventListener('click', () => {
+          localStorage.removeItem(AUTH_KEY);
+          refreshAuthUI();
+          window.location.hash = '#/login';
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+          const skipLink = document.querySelector('.skip-link');
+          const mainEl = document.getElementById('app-main');
+          if (skipLink && mainEl) {
+            skipLink.addEventListener('click', (e) => {
+              e.preventDefault();
+              mainEl.setAttribute('tabindex', '-1');
+              mainEl.focus();
+              mainEl.scrollIntoView({ behavior: 'smooth' });
+            });
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
